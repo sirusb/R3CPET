@@ -1,0 +1,157 @@
+useDynLib(R3CPET,.registration=TRUE)
+## Exports ###
+
+exportMethods(loadPETs, pet, tfbs, loadTFBS, loadPPI, ppi,
+              "pet<-", "tfbs<-", "ppi<-",createIndexes, 
+              PrepareData, CreateCenteredBED,buildNetworks,
+              networks, sizes, TF, InferNetworks,clusterInteractions,
+              getClusters, getRegionsIncluster, getRegionsInNetwork,
+              topEdges, topNodes, wordsPerTopic,docPerTopic, betas,
+              updateResults, outputGenesPerClusterToDir, outputGenesPerNetworkToDir,
+              GOEnrich.folder, GOEnrich.networks, GenerateNetworks,
+              annotateExpression, plot3CPETRes, visualizeCircos,
+              visualizeInteractions, plotTrack, createServer)
+
+exportClasses(cluesOrSota, ChiapetExperimentData,
+			  NetworkCollection, HLDAResult, ChromMaintainers)
+
+export(ChiapetExperimentData, NetworkCollection, 
+		HLDAResult, ChromMaintainers)
+#exportPattern("^[[:alpha:]]+")
+
+### imports ####
+import(methods)
+#import(biovizBase)
+#import(ChIPpeakAnno)
+
+importFrom(clues, clues)
+importFrom(clues, plotCurves) 
+importFrom(clues, plotClusters) 
+importFrom(clues, plotAvgCurves) 
+
+importFrom(clValid, sota)
+
+importFrom(data.table, SJ)
+importFrom(data.table, setkey)
+importFrom(data.table, data.table)
+
+importFrom(parallel, mclapply)
+importFrom(parallel, parLapply)
+importFrom(parallel, makeCluster)
+importFrom(parallel, detectCores)
+importFrom(parallel, stopCluster)
+
+importClassesFrom(GenomicRanges,GRanges)
+importClassesFrom(GenomicRanges,GRangesList)
+importClassesFrom(GenomicRanges,GenomicRanges)
+importClassesFrom(GenomicRanges,GenomicRangesList)
+importFrom(GenomicRanges, GRanges)
+importMethodsFrom(GenomicRanges, end)
+importMethodsFrom(GenomicRanges, start)
+importMethodsFrom(GenomicRanges, mcols)
+importMethodsFrom(GenomicRanges, values)
+importMethodsFrom(GenomicRanges, setdiff)
+importMethodsFrom(GenomicRanges, seqinfo)
+importMethodsFrom(GenomicRanges, seqnames)
+importMethodsFrom(GenomicRanges, promoters)
+importMethodsFrom(GenomicRanges, intersect)
+importMethodsFrom(GenomicRanges, seqlengths)
+importMethodsFrom(GenomicRanges, findOverlaps)
+importMethodsFrom(GenomicRanges, keepSeqlevels)
+importMethodsFrom(GenomicRanges, seqlevels)
+importMethodsFrom(GenomicRanges, "seqlengths<-")
+importMethodsFrom(GenomicRanges, elementMetadata)
+importMethodsFrom(GenomicRanges, subsetByOverlaps)
+
+
+importFrom(S4Vectors, Rle)
+importFrom(S4Vectors,DataFrame)
+importClassesFrom(IRanges, Views)
+importClassesFrom(IRanges, IRanges)
+importClassesFrom(IRanges, RleList)
+importClassesFrom(IRanges,RangesList)
+importClassesFrom(IRanges,RangedData)
+importClassesFrom(IRanges,IntegerList)
+importClassesFrom(IRanges,CharacterList)
+importClassesFrom(IRanges, IRangesList)
+
+importFrom(IRanges, Views)
+importFrom(IRanges, RleList)
+importFrom(IRanges, IRanges)
+importFrom(IRanges,RangesList)
+importFrom(IRanges,RangedData)
+importFrom(IRanges,IntegerList)
+importFrom(IRanges,CharacterList)
+importFrom(IRanges, IRangesList)
+
+importMethodsFrom(IRanges, width)
+importMethodsFrom(IRanges,queryHits)
+importMethodsFrom(IRanges,"values<-")
+importMethodsFrom(IRanges,subjectHits)
+importMethodsFrom(IRanges,elementLengths)
+
+importFrom(igraph, V)
+importFrom(igraph, E)
+importFrom(igraph, 'V<-')
+importFrom(igraph, degree)
+importFrom(igraph, vcount)
+importFrom(igraph, ecount)
+importFrom(igraph, vertex)
+importFrom(igraph, simplify)
+importFrom(igraph, is.igraph)
+importFrom(igraph, get.edges)
+importFrom(igraph, read.graph)
+importFrom(igraph, write.graph)
+importFrom(igraph, graph.empty)
+importFrom(igraph, get.edgelist)
+importFrom(igraph, get.adjacency)
+importFrom(igraph, as.undirected)
+importFrom(igraph, delete.vertices)
+importFrom(igraph, induced.subgraph)
+importFrom(igraph, layout.kamada.kawai)
+importFrom(igraph, get.all.shortest.paths)
+
+importFrom(ggbio, xlim)
+importFrom(ggbio, tracks)
+importFrom(ggbio, plotIdeogram)
+importFrom(ggbio, layout_circle)
+
+importFrom(ggplot2, aes)
+importFrom(ggplot2, theme)
+importFrom(ggplot2, ggsave)
+importFrom(ggplot2, ggplot)
+importFrom(ggplot2, ggtitle)
+importFrom(ggplot2, autoplot)
+importFrom(ggplot2, geom_bar)
+importFrom(ggplot2, theme_bw)
+importFrom(ggplot2, geom_text)
+importFrom(ggplot2, geom_path)
+importFrom(ggplot2, scale_size)
+importFrom(ggplot2, geom_point)
+importFrom(ggplot2, coord_flip)
+importFrom(ggplot2, aes_string)
+importFrom(ggplot2, element_rect)
+importFrom(ggplot2, element_text)
+importFrom(ggplot2, element_blank)
+importFrom(ggplot2, scale_y_continuous)
+importFrom(ggplot2, scale_colour_gradient)
+
+#importFrom(biomaRt, getBM)
+#importFrom(biomaRt, useMart)
+#importFrom(biomaRt, useDataset)
+
+
+#importFrom(org.Hs.eg.db, org.Hs.egUCSCKG)
+#importFrom(org.Hs.eg.db, org.Hs.eg.db)
+
+#importFrom(AnnotationDbi, select)
+#importFrom(AnnotationDbi, toTable)
+
+
+#importFrom(TxDb.Hsapiens.UCSC.hg19.knownGene, TxDb.Hsapiens.UCSC.hg19.knownGene)
+importFrom(Hmisc, bezier)
+importFrom(DAVIDQuery, DAVIDQuery)
+importFrom(pheatmap, pheatmap)
+importFrom(reshape2, melt)
+#importFrom(shiny, runApp)
+importFrom(Rcpp, evalCpp)
