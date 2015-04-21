@@ -1,0 +1,542 @@
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{3CPET: Finding Co-factor Complexes maintaining Chia-PET interactions}
+%\VignetteDepends{data.table, parallel, igraph, GenomicRanges, clues}
+%\VignettePackage{R3CPET}
+%\VignetteKeywords{Dirichlet, HLDA, transcription, chromatin}
+
+
+
+\documentclass[10pt]{article}
+
+<<style, eval=TRUE, echo=FALSE, results='asis'>>=
+BiocStyle::latex()
+@
+
+%\usepackage{BioconductorVignette}
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage{graphicx, verbatim}
+\usepackage{ amssymb }
+
+\textwidth=7in
+\textheight=8.7in
+\parskip=.3cm
+\oddsidemargin=-.1in
+\evensidemargin=-.1in
+\headheight=-.3in
+
+\definecolor{Dandelion}{rgb}{0.94, 0.88, 0.19}
+
+%\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+%\newcommand{\Robject}[1]{{\texttt{#1}}}
+%\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+%\newcommand{\Rclass}[1]{{\textit{#1}}}
+%\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+%\newcommand{\software}[1]{\textsf{#1}}
+%\newcommand{\R}{\software{R}}
+\newcommand{\CPET}{\Rpackage{R3CPET}}
+\newcommand{\Assay}[1]{\textit{#1}}
+\newcommand{\higlighTitle}[1]{\textcolor{Dandelion}{\textsl{#1}}}
+
+\bioctitle{\Biocpkg{R3CPET} user manual}
+\author{
+Mohamed Nadhir Djekidel, Yang Chen et al\\
+\email{nde12@mails.tsunghua.edu.cn}
+}
+
+\begin{document}
+
+\maketitle
+
+<<options,echo=FALSE>>=
+options(width=60)
+@
+%\date{\today}
+\tableofcontents
+
+<<env, echo=FALSE, warning=FALSE>>=
+suppressPackageStartupMessages(library("GenomicRanges"))
+suppressPackageStartupMessages(library("igraph"))
+@
+
+\newpage
+\section{Introduction}
+The breakthrough in chromatin conformation study done in the last decade has shed some light on many aspects of gene transcription mechanisms and revealed that chromatin crosstalk plays an important role in connecting regulatory sequences to their target promoters through loop formation
+
+However, a key limitation of the existing chromatin conformation assays is that they can just give us the genomic coordinates of 
+the interacting DNA fragments but don't tell us on the proteins involved.One used solution is to use \Assay{Chip-Seq}  to
+get the list of the proteins involved at these borders but one limitation is that not all the proteins can be captured and some
+don't have a specific anti-body.
+
+Thus, computational methods are still useful to give some insight on the protein candidates that can play a role in maintaining 
+these interactions. \CPET{} comes as a tool to fill this gap and try to infer the loop-maintaining network(s) in a more concise manner.
+
+
+3CPET is based on the following idea : if we can have the list of the protein networks that maintain all of the DNA-interactions,
+then we can infer the set the most enriched networks. One of the widely used statistical model in this kind of problems
+is the HLDA model which is a non-parametric Bayesian that enables us to infer the number of different groups from the data.
+
+In order to apply HLDA, we need to have a corpus of documents and we assign each word to a topic. In our case each document is a 
+network and each word is an edge in that network. To create a network for each interaction we use \textit{(i)} find the set of the
+proteins involved a the boundaries of a loop and this by using \Assay{Chip-Seq} peaks or \textit{motifs} data.
+
+In the next step, we use the information in a background PPI to construct the network connecting the two interacting DNA fragments.
+
+\begin{figure}[b]
+\centering
+\includegraphics[scale=0.6]{Network_Construction.png}
+\caption{Illustration of the network construction procedure.}
+\end{figure}
+
+The networks are then converted into a \textit{bag} of edges (\textit{i.e} allow repetition) and fed to the HLDA algorithm.
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.6]{HLDA.pdf}
+\caption{HLDA model}
+\end{figure}
+
+
+In this model, we suppose that each network  $(j_n)_{n=1}^{\infty}$  is made-up of a mixture of protein complexes each with different a proportion $\theta_n \sim DP(\alpha, \pi)$.  To infer the number of clusters, the model suppose that we have an infinite number of chromatin maintainer networks distributed according to a certain distribution $H$. 
+To enable the sharing the complexes $(\beta_k)$ across all the networks, an intermediate discrete distribution is introduced 
+$(\beta_k)_{k=1}^{N}$ sampled from the base distribution $H$ using a stick breaking construction $\pi|\gamma \sim GEM(\gamma)$.
+
+\section{Using \Rpackage{R3CPET}}
+
+\CPET{} package were built to enable the user to upload the data step-by-step and thus giving him a more 
+granular control of the data that he uses. Maybe it sounds like the use needs more labor, but the user can create an \Rfunction{S3} wrapper function that encapsulate the workflow functions into one  method.
+
+Four main classes are provided by \CPET{}:
+\begin{enumerate}
+\item \Robject{ChiapetExperimentData} - a container for the raw data to use. 3 types of data can be loaded into this class 
+respectively :\Assay{ChIA-PET} interactions, \Assay{ChIP-Seq} peaks and the background \textit{PPI}.
+\item \Robject{NetworkCollection} - Holds the list of the build networks for each DNA-interaction and their information.
+\item \Robject{HLDAResult} - contains the results of the HLDA algorithm.
+\item \Robject{ChromMaintainers} - contains the final results after processing the HLDA results (\textit{i.e}: list of networks and their nodes).
+\end{enumerate}
+In addition to these classes additional helper methods for GO enrichment and and gene conversion.
+
+\subsection{Loading data}
+
+Before starting the analysis different kinds of dataset need be loaded. This can be done using a \Robject{ChiapetExperimentData}  object. 
+
+The user can load the data using the \Robject{ChiapetExperimentData} constructor.
+By passing: ChIA-PET interactions data, transcription factors binding site (TFBS) and a protein-protein interaction network. 
+The ChIA-PET interactions can be passed as path to a file or a \Robject{GRanges} object. The same is for the TFBS.
+
+<<init-ChiapetExperimentData, results = 'hide', warning=FALSE, message=FALSE, prompt=TRUE, tidy=TRUE>>=
+library(R3CPET)
+petFile <- file.path(system.file("example",package="R3CPET"),"HepG2_interactions.txt")  
+tfbsFile <- file.path(system.file("example",package="R3CPET"),"HepG2_TF.txt.gz")  
+x <- ChiapetExperimentData(pet = petFile, tfbs=  tfbsFile, IsBed = FALSE, ppiType="HPRD", filter= TRUE) 
+@
+
+Three types of data can be loaded : 
+\begin{itemize}
+\item \higlighTitle{ChIA-PET interactions} - which can have two formats: (i) the first type is a file in which the first
+six columns indicate the left and right interacting parts (generally parsed from the ChIA-PET tool). For example
+
+<<Read_chiapetData_chiapetTools, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+petPath <- system.file("example","HepG2_interactions.txt",package="R3CPET")
+petFile <- read.table(petPath, 
+                      sep = "\t", header = TRUE)
+head(petFile)
+@
+Here only the 6 first columns are considered. It is up to the user to filter the significant interactions for him.
+
+The second type of files that can be loaded is a four columns file in which the first three columns indicate the 
+genomic location of a DNA region and the forth column indicate if the region is located at the right or left side.
+The IDs in the fourth column should have the pattern \Rcode{PET\#}$\backslash\backslash$\Rcode{d+}$\backslash\backslash$.\Rcode{1}  for the left side and \Rcode{PET\#}$\backslash\backslash$\Rcode{d+}$\backslash\backslash$.\Rcode{2} for the right side. 
+if the number of the left side interactions is different from the right side an error will be 
+raised.
+<<Read_chiapetData_BED, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+petPath <- system.file("example","HepG2_centered.bed",package="R3CPET")
+petFile <- read.table(petPath, sep = "\t", header = FALSE, comment.char = '+')
+                      
+head(petFile)
+@
+
+The method \Rmethod{loadPETs} can be used to load the data
+
+<<loadPETs_example, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+## if it has 6 columns format IsBed = FALSE
+petPath <- system.file("example","HepG2_interactions.txt",package="R3CPET")
+x <- loadPETs(x,petFile=petPath, IsBed=FALSE)
+@
+
+if the file is 4 columns BED file you can set \Rcode{IsBed = TRUE}
+
+<<loadPETs_BED_example, warning=FALSE, tidy=TRUE, prompt=TRUE, eval=FALSE>>=
+## loading a 4 columns BED file
+petPath <- system.file("example","HepG2_centered.bed",package="R3CPET")
+x <- loadPETs(x,petFile=petPath, IsBed=TRUE, header = FALSE)
+@
+
+The \Rmethod{pet(x)} accessor method can be used to read the loaded interactions as \Rclass{GRanges} object.
+
+\item \higlighTitle{ChIP-Seq peaks} - All the \Assay{ChIP-Seq} peaks of the different TF should be merged into a 4 columns
+in which the first 3 columns indicate the position of the peak and the last column indicate the associated TF.
+The \Rcode{loadTFBS} method can be used to do so.
+
+<<TF_example, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+## loading a 4 columns BED file
+TFPath <- system.file("example","HepG2_TF.txt.gz",package="R3CPET")
+TF <- read.table(TFPath, sep = "\t", header= FALSE)
+head(TF)
+x <- loadTFBS(x,tfbsFile=TFPath)
+@
+
+\item \higlighTitle{Protein interaction} - a background \Rcode{PPI} is needed to do the networks construction. 
+The package comes with two build in \Rcode{PPI} : the \Rcode{HPRD} and the \Rcode{Biogrid PPI}.
+
+<<HPRD_Biogrid_example, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+data(HPRD)
+data(Biogrid)
+
+PPI.HPRD
+PPI.Biogrid
+@
+
+The \Rcode{loadPPI} method can be used to load and filter the \Rcode{PPI} according to different criteria.
+<<loadPPI_usage, warning=FALSE, tidy=TRUE, eval=FALSE, prompt=TRUE>>=
+loadPPI(object,type=c("HPRD","Biogid"),customPPI = NULL,
+	    filter = FALSE,term = "GO:0005634",
+	     annot = NULL, RPKM = NULL, threshold = 1 )
+@
+
+if \Rcode{customPPI} one of the built-in \Rcode{PPI} will be used otherwise the user can provide a path to an \Rcode{ncol}
+formatted graph (two column to indicate interacting nodes) or directly provide an \Rclass{igraph} object.
+
+The user can also do some filtering to remove proteins that he thinks are not significant. by default the package keeps
+only the proteins that are located at nucleus (\Rcode{term = "GO:0005634"}). The user can provide his own annotation
+to the \Rcode{annot} parameter. In some cases the user want to keep only the cell specific genes, thus he can filter
+genes according to their gene expression by providing a two columns gene expression table to the \Rcode{RPKM} parameter
+and set the \Rcode{threshold}.
+
+<<loadPPI_loading, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+## loading the PPI with GO filtering
+x <- loadPPI(x,type="HPRD", filter=TRUE)
+@
+\end{itemize}
+
+\subsection{Creating indexes}
+
+When the user thinks that the data that he loaded is ok, he need to create indexes for processing in the further steps.
+Indexes can be created by calling the method \Rcode{createIndexes}.
+
+<<createIndexes, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+x <- createIndexes(x)
+x
+@
+
+\subsection{building networks for DNA regions}
+
+One all the data are loaded we can go to the next step and build the protein interaction networks for each chromatin loop.
+The \Rmethod{buildNetworks} is used and a \Robject{NetworkCollection} is returned. When the networks are built, the rare and the 
+more frequent edges are removed as they are considered to be not specific. By default, edges that appear in less than 25\%  or 
+more than 75\% of the total networks are removed.
+
+the user can set these values by modifying the \Rcode{minFreq} and \Rcode{maxFreq} parameters of the \Rmethod{buildNetworks} method.
+
+<<buildingNetworks, warning=FALSE, tidy=TRUE,cache=TRUE, prompt=TRUE, eval=FALSE>>=
+nets<- buildNetworks(x, minFreq=0.1, maxFreq=0.9)
+nets
+@
+<<load_nets, warning=FALSE, echo=FALSE, message=TRUE,>>=
+load(system.file("example","nets.RData",package="R3CPET"))
+nets
+@
+
+ The \Rmethod{buildNetworks} uses the \Rpackage{parallel} package to parallelize the processing.If the user has 4 cores,
+ then 4 \R{}instances will be lunched at the background each running on a core and handling part of the data.
+ 
+\subsection{Inferring chromatin maintainer networks}
+
+At this step the \Rmethod{InferNetworks} can be used to run the HLDA algorithm and infer the set of the most enriched 
+chromatin maintainer networks. by default, the algorithm do a maximum of 500 iteration or stops after 1 hour. 
+
+<<InferNetowrks_usage, warning=FALSE, tidy=TRUE, eval=FALSE>>=
+InferNetworks(object,thr =0.5,max_iter = 500L, max_time = 3600L, ...)
+@
+
+When the algorithm finishes we get a matrix that indicates the degree of partnership of each edge to the inferred networks 
+(each network is distribution over edges). Thus, to get the top elements in each network, we use the parameter \Rcode{thr}
+to select the edges that capture \Rcode{thr}\% of the network.
+Thus, more general networks tend to have bigger number elements and more specific networks have less elements. 
+At the end a \Robject{ChromMaintainers} object is returned.
+
+<<InferNetowrks, warning=FALSE, tidy=TRUE,cache=TRUE, prompt=TRUE, eval=FALSE>>=
+hlda <- InferNetworks(nets)
+hlda
+@
+<<load_hlda, warning=FALSE, echo=FALSE, message=TRUE>>=
+load(system.file("example","hlda.RData",package="R3CPET"))
+hlda
+@
+The different slots of the \Rcode{hlda} object can be accessed using the following accessor methods:
+\begin{itemize}
+\item \Rcode{topEdges} : to get the list of the top edges in each network.
+\item \Rcode{topNodes} : to get the list of the top nodes in each network.
+\item \Rcode{networks} : to get a list \Robject{igraph} objects.
+\end{itemize}
+
+<<InferNetowrks_topElemets, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+head(topEdges(hlda))
+head(topNodes(hlda))
+@
+
+The \Rcode{igraph} networks are not created at the beginning, the \Rmethod{GenerateNetworks} should be used to 
+convert the \Rcode{topEdges} slot into networks.
+
+<<InferNetowrks_Networks, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+hlda <- GenerateNetworks(hlda)
+head(networks(hlda))
+@
+
+if the user wants to annotate each protein in the network by its gene expression he can use the \Rmethod{annotateExpression}
+method. To use this method the user needs to provide a \Rcode{data.frame} object, that contains the names of the genes
+in the first column and their expression value in the second.
+
+<<Annotate expression, warning=FALSE, tidy=TRUE, prompt=TRUE>>=
+data(RPKMS)
+hlda<- annotateExpression(hlda,RPKMS)
+networks(hlda)[[1]]
+@
+
+We can notice that the RPKM attribute was added to the network.
+
+\subsection{Cluster DNA interactions by enrichment profile}
+
+Till the moment we can say ok, we got the list of out networks and we can do further biological examination to check the results,
+however,it would be nice if we can know which DNA interactions are enriched for same networks. Thus, the package provide a clustering
+feature to further analysis.
+
+The \Rmethod{clusterInteractions} can be used to do so. Two types of clustering can be done: 
+\begin{itemize}
+\item Supervised : in which the user provides the number of clusters he wants, this part is done using the \Rmethod{sota} method of the \Rpackage{clValid} package.
+\item non-supervised :  in which the number of clusters is determined automatically, performed using the \Rmethod{clues} method of the \Rcode{clues} package.
+\end{itemize}
+
+The \Rmethod{clusterInteractions} is defined as follow:
+
+<<cluster_usage, tidy=TRUE,  eval=FALSE>>=
+clusterInteractions(object, method=c("clues","sota"), nbClus=20 )
+@
+
+by default the \Rcode{clues} method is chosen , if you specify \Rcode{sota} the default number of clusters is 20.
+<<clusterInteractions, tidy=TRUE,cache=TRUE, prompt=TRUE>>= 
+## clustering using the "clues" method
+hlda <- clusterInteractions(hlda, method="clues")
+@
+
+\subsection{Visualization}
+
+The package comes with a bunch of visualization plots to enable the exploration of data mainly through the \Rmethod{plot3CPETRes} method.
+<<plot3CPETRes_usage, tidy=TRUE,  eval=FALSE>>=
+
+plot3CPETRes(object, path="", W=14, H=7 , 
+          type=c("heatmap","clusters","curve","avgCurve","netSim", "networks"),
+          byEdge=TRUE, layoutfct=layout.kamada.kawai, ...)
+@
+
+
+To get the genomic coordinates of the regions involved in each cluster the methods \Rmethod{getRegionsIncluster} can be used. 
+To use it the initial initial interaction data should be provided.
+
+<<getRegionsIncluster, tidy=TRUE, prompt=TRUE >>=
+getRegionsIncluster(hlda,x,cluster=3)
+@
+
+\subsubsection{Heatmaps}
+
+After clustering the enrichment map can be visualized using the \Rcode{heatmap} option in the \Rmethod{plot3CPETRes} method.
+Here each column represent a chromatin-chromatin interaction and each row represents a chromatin maintainer network. 
+The  colors indicate the probability that a chromatin-chromatin interaction is maintained by a chromatin maintainer network.
+<<heatmap, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center' , fig.height=3>>= 
+plot3CPETRes( hlda, type = 'heatmap')
+@
+
+\subsubsection{Enrichment curves}
+
+An other way to check the enrichment of the different chromatin interactions in the different clusters is by plotting the
+enrichment and average enrichment curves in of the chromatin interactions in each clusters. 
+
+if the \Rcode{type} parameter of the \Rmethod{plot3CPETRes} method is set to \Rcode{curve} the enrichment profile 
+of all the interactions per cluster is displayed as shown bellow: 
+
+
+<<plot_curve, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center', fig.width=6, fig.height=3.5>>= 
+## plotting curves
+plot3CPETRes(hlda, type = 'curve')
+@
+
+if \Rcode{type = "avgCurve"} then the average curves are displayed.
+<<plot_avgCurve, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center', fig.width=6, fig.height=3.5>>= 
+## plotting Average curves
+plot3CPETRes(hlda, type = 'avgCurve')
+@
+
+\subsubsection{clusters pair-wise scatter plot}
+In some cases we want to see which two clusters can give a better separation of the data, in this case the \Rcode{type = "clusters"} option can be used. This option is only available if the clustering have been done using the \Rmethod{clues} method.
+
+
+<<plot_clusters, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center',fig.width=5, fig.height=5>>= 
+## plotting pair-wise clusters scatter plots
+plot3CPETRes(hlda, type = 'clusters')
+@
+
+\subsubsection{plot networks}
+
+
+if \Rcode{type ="networks"} is used, a pdf file \Rcode{AllGraphs.pdf} is created and contains one networks per page. This method returns a \Robject{ggplot} list (one for each network).  By default the \Rmethod{layout.kamada.kawai} from the \Rpackage{igraph} package is used by the user can pass any other function through the \Rcode{layoutfct} parameter.
+
+<<plot_networks, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center', warning=FALSE, message=FALSE, fig.width=3.5, fig.height=3.5>>= 
+nets_plot <- plot3CPETRes(hlda, type = 'networks')
+plot(nets_plot[[4]])
+@
+
+\subsubsection{Networks similarity}
+
+To the degree to which the infered networks share some common edges we can set \Rcode{type = "netSim"}. of course, the smaller the similarity the better.
+
+<<plot_netSim, tidy=TRUE,cache=FALSE, prompt=TRUE,fig.align='center', warning=FALSE, fig.width=5, fig.height=3.5>>= 
+plot3CPETRes(hlda,type = 'netSim')
+@
+
+\subsubsection{Circos maps}
+
+\CPET{} also enable the user to plot a basic circos map for a given cluster through the method \Rcode{visualizeCircos}.  The initial data should be passed in the \Rcode{data} parameter as a \Robject{ChiapetExperimentData} object. 
+
+<< visualizeCircos_usage,tidy=TRUE,  eval=FALSE >>=
+
+visualizeCircos(object, data, cluster = 1, chrLenghts = NULL)
+@
+
+By default, the human chromosome lengths are used, if the user is using different species he can provide his own chromosome lengths as a two columns \Robject{data.frame} that contains the name of the chromosome in the first column and the length in the second one.
+
+
+<<plot_circos, tidy=TRUE, prompt=TRUE,fig.align='center', fig.height=6, fig.width=6, message=FALSE, warning=FALSE>>= 
+visualizeCircos(hlda,x, cluster = 4)
+@
+
+
+\subsection{Gene enrichment}
+
+
+\CPET enable uses to do a GO analysis using the \Rcode{DAVID} web service. Two types of enrichment can be done: 
+\begin{itemize}
+\item GO enrichment analysis of the proteins of the inferred networks using the \Rmethod{GOEnrich.networks} method.
+\item GO enrichment of the chromatin interaction clusters using the \Rmethod{GOEnrich.folder} method.
+
+\end{itemize}
+
+
+\subsubsection{Networks GO enrichment}
+
+
+<<GOEnrich.networks_usage, warning=FALSE, tidy=TRUE, eval=FALSE, prompt=TRUE>>=
+
+GOEnrich.networks(object, fdr= 0.05, GOlimit = 5,path = "")
+@
+
+The \Rmethod{GOEnrich.networks} method can be used for that. it takes as parameters a \Robject{ChromMaintainers} object
+and a optionally the cu-off \Rcode{FDR} and the path to save the generated figure. The maximum number of returned 
+GO terms per cluster can be specified by the \Rcode{GOlimit} parameter.
+
+
+<<GOEnrich.networks, warning=FALSE, tidy=TRUE, prompt=TRUE, fig.align='center', cache=TRUE, fig.show='hide', eval=FALSE>>=
+
+GOEnrich.networks(hlda, path= '.')
+@
+
+\begin{figure}[h]
+
+\centering
+\includegraphics[scale=0.32]{NetworksEnrich.pdf}
+\end{figure}
+
+
+Each column in this plot represent a network and each row represents the GO term to which each network is enriched.
+The size of the dot is proportional to the number of percentage of the proteins enriched for that term.
+
+\subsubsection{GO enrichment of the genes in each cluster}
+Another question that we want to ask is what are the genes involved in each cluster ? and do they share some specific function.
+Similarly a GO annotation method is available. However, before doing the GO enrichment the list of list in each each 
+cluster should be extracted, this can be done using the \Rmethod{outputGenesPerClusterToDir} method.
+
+<< outputGenesPerClusterToDir_usage,tidy=TRUE,  eval=FALSE >>=
+outputGenesPerClusterToDir(hdaRes,data,path="ClustersGenes", ...)
+@
+
+This function generated a folder (by default named \Rcode{ClustersGenes}) that contains \Rcode{.txt} file for each cluster.
+
+<<outputGenesPerClusterToDir, warning=FALSE, tidy=TRUE, prompt=TRUE, message=FALSE, eval=FALSE>>=
+outputGenesPerClusterToDir(hlda, x)
+@
+
+Then we can use the \Rmethod{GOEnrich.folder} to enrich the list of genes in the created folder.
+<< GOEnrich_folder, warning=FALSE, tidy=TRUE, prompt=TRUE, fig.align='center', fig.show='hide', message=FALSE, eval=FALSE>>=
+GOEnrich.folder(folder = "ClustersGenes/")
+@
+
+A figure will be generated for the significantly enriched gene lists (example figure bellow).
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.30]{cluster_GO.png}
+\caption{Example of the GO enrichment for a genes of cluster 1}
+\end{figure}
+
+
+
+\subsection{Using the web interface}
+
+After getting all the results (HLDA, clustering, ... etc), the user can display the results 
+using a web browser developped using the \Rpackage{shiny} package. This can be done throght the method \Rmethod{createServer}.
+
+<< createShinyServer,tidy=TRUE,  eval=FALSE >>=
+createServer(x,nets,hlda)
+@
+
+In the website the user can have some information about the raw data, such as the used TF, how many regeions each TF binds,
+the distribution of interaction per cluster, .... etc. Some of the features are explained in the flowing points
+
+\subsubsection{Raw data visualization}
+Statistics about the 3 types of raw data data (chromatin interactions, TFBS, PPI) can be displayed. Two select options are available under the "Raw Data" panel:
+
+\begin{figure}[h]
+  	\centering
+		\includegraphics[width=0.75\linewidth]{rawData_selection.png}
+		\caption{Example showing the histogram of the number of interacting region per chromosome}
+	\end{figure}
+  
+\begin{itemize}
+	\item data type selection option: in which the user selects the type of data he wants analyze : Interactions, TFBS or PPI.
+	\item statistics selection option : in which the user selects the type of the plot he wants to generate (Figure 4)
+\end{itemize}
+
+
+\subsubsection{Results visualization}
+
+This panel also enables the user to interactively analyze his results. Two types of results can be analyzed : The concerning the Chromatin maintainer networks,
+and the other one about the clustered genomic regions.
+For example, Figure 5. shows a screenshot in which the user selects a Chromatin maintainer network and display it in an interactive manner using the \Rpackage{D3js} javascript library.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{resultsNetworks_3ds.png}
+\caption{Example of the plots in the web interface}
+\end{figure}
+
+\newpage
+
+\section{Session Info}
+
+<< sessioninfo>>=
+sessionInfo()
+@
+
+
+\end{document}
