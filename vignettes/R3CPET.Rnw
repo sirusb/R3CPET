@@ -44,7 +44,7 @@ BiocStyle::latex()
 \bioctitle{\Biocpkg{R3CPET} user manual}
 \author{
 Mohamed Nadhir Djekidel, Yang Chen et al\\
-\email{nde12@mails.tsunghua.edu.cn}
+\email{nde12@mails.tsinghua.edu.cn}
 }
 
 \begin{document}

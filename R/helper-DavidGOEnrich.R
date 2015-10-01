@@ -38,7 +38,7 @@
   genesList<-genesList[genesList!=""];
   
   #Get GO enrichment from DAVID
-  dav<-DAVIDQuery(ids=genesList,type=IDtype,annot="GOTERM_BP_ALL",tool="chartReport",URLlengthLimit = 600400);
+  dav<-.DAVIDQuery(ids=genesList,type=IDtype,annot="GOTERM_BP_ALL",tool="chartReport",URLlengthLimit = 600400);
   
   if(length(dav$downloadFileName)>0){
     dav$DAVIDQueryResult$Benjamini<-as.double(dav$DAVIDQueryResult$Benjamini);
@@ -80,7 +80,7 @@
     inCluster<-inCluster[inCluster!=""];
     
     #Get GO enrichment from DAVID
-    dav<- DAVIDQuery(ids=inCluster,type="OFFICIAL_GENE_SYMBOL",annot="GOTERM_BP_ALL",tool="chartReport",URLlengthLimit = 102400);
+    dav<- .DAVIDQuery(ids=inCluster,type="OFFICIAL_GENE_SYMBOL",annot="GOTERM_BP_ALL",tool="chartReport",URLlengthLimit = 102400);
     
     if(length(dav$downloadFileName)>0){
       dav$DAVIDQueryResult$Benjamini<-as.double(dav$DAVIDQueryResult$Benjamini);

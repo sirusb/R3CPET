@@ -3,15 +3,15 @@ Type: Package
 Title: 3CPET: Finding Co-factor Complexes in Chia-PET experiment using
         a Hierarchical Dirichlet Process
 Description: The package provides a method to infer the set of proteins that are more probably to work together to maintain chormatin interaction given a ChIA-PET experiment results.
-Version: 0.99.17
+Version: 1.1.1
 Date: 2013-11-23
 Author: M. N. Djekidel, Yang Chen et al.
 Maintainer: Mohamed Nadhir Djekidel <djek.nad@gmail.com>
 License: GPL (>=2)
 Depends: R (>= 3.2), Rcpp (>= 0.10.4), methods
 Imports: parallel, clues, ggplot2, pheatmap, IRanges, clValid,
-        igraph,data.table,GenomicRanges,S4Vectors, DAVIDQuery,
-        ggbio,reshape2,Hmisc
+        igraph,data.table,GenomicRanges,S4Vectors,
+        ggbio,reshape2,Hmisc, RCurl
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Suggests: BiocStyle, knitr, TxDb.Hsapiens.UCSC.hg19.knownGene,
