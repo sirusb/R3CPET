@@ -7,6 +7,8 @@ Version: 1.1.3
 Date: 2015-10-1
 Author: M. N. Djekidel, Yang Chen et al.
 Maintainer: Mohamed Nadhir Djekidel <djek.nad@gmail.com>
+URL : https://github.com/sirusb/R3CPET
+BugReports: https://github.com/sirusb/R3CPET/issues
 License: GPL (>=2)
 Depends: R (>= 3.2), Rcpp (>= 0.10.4), methods
 Imports: parallel, clues, ggplot2, pheatmap, IRanges, clValid,
