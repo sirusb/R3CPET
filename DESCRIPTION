@@ -3,7 +3,7 @@ Type: Package
 Title: 3CPET: Finding Co-factor Complexes in Chia-PET experiment using
         a Hierarchical Dirichlet Process
 Description: The package provides a method to infer the set of proteins that are more probably to work together to maintain chormatin interaction given a ChIA-PET experiment results.
-Version: 1.1.5
+Version: 1.1.7
 Date: 2015-10-1
 Author: M. N. Djekidel, Yang Chen et al.
 Maintainer: Mohamed Nadhir Djekidel <djek.nad@gmail.com>
