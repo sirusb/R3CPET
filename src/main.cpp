@@ -20,7 +20,12 @@ Rcpp::List RunHLDA(List Documents, int max_iter = 500, int max_time = 3600){
     max_time = 3600; //One hour :)
   }
     
-  
+  // Using the HDP implementation by Blei's lab 
+  // with adaptation to Rcpp and removal of the GSL dependency
+  // The original source code can be found at 
+  // https://github.com/Blei-Lab/hdp/tree/master/hdp-faster
+
+
   time_t t; time(&t);    
   // Data parameters.
   //char* train_data = NULL;
