@@ -9,7 +9,7 @@
 SEXP R3CPET_RunHLDA(SEXP DocumentsSEXP, SEXP max_iterSEXP, SEXP max_timeSEXP);
 
 R_CallMethodDef callMethods[]  = {
-  {"R3CPET_RunHLDA", (DL_FUNC) &R3CPET_RunHLDA, 3},
+  {"R3CPET_RunHLDA", (DL_FUNC) &R3CPET_RunHLDA, 6},
   {NULL, NULL, 0}
 };
 

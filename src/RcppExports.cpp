@@ -6,19 +6,18 @@
 using namespace Rcpp;
 
 // RunHLDA
-Rcpp::List RunHLDA(List Documents, int max_iter = 500, int max_time = 3600);
-RcppExport SEXP R3CPET_RunHLDA(SEXP DocumentsSEXP, SEXP max_iterSEXP, SEXP max_timeSEXP) {
+Rcpp::List RunHLDA(List Documents, int max_iter, int max_time, double eta, double gamma, double alpha);
+RcppExport SEXP R3CPET_RunHLDA(SEXP DocumentsSEXP, SEXP max_iterSEXP, SEXP max_timeSEXP, SEXP etaSEXP, SEXP gammaSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< List >::type Documents(DocumentsSEXP );
-        Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP );
-        Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP );
-        Rcpp::List __result = RunHLDA(Documents, max_iter, max_time);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type Documents(DocumentsSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP);
+    Rcpp::traits::input_parameter< double >::type eta(etaSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    __result = Rcpp::wrap(RunHLDA(Documents, max_iter, max_time, eta, gamma, alpha));
+    return __result;
 END_RCPP
 }

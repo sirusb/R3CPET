@@ -9,7 +9,8 @@ using namespace std;
 
 
 //[[Rcpp::export]]
-Rcpp::List RunHLDA(List Documents, int max_iter = 500, int max_time = 3600){
+Rcpp::List RunHLDA(List Documents, int max_iter = 500, int max_time = 3600, 
+                   double eta=0.01, double gamma= 1.0, double alpha = 1.0){
     
   if(Documents.size()==0){
     Rcpp::stop("No Networks list was provided");
@@ -31,9 +32,9 @@ Rcpp::List RunHLDA(List Documents, int max_iter = 500, int max_time = 3600){
   //char* train_data = NULL;
   
   // Model parameters.
-  double eta = 0.01;
-  double gamma = 1.0;
-  double alpha = 1.0;
+  //double eta = 0.01;
+  //double gamma = 1.0;
+//  double alpha = 1.0;
   double gamma_a = 1.0;
   double gamma_b = 1.0;
   double alpha_a = 1.0;
@@ -59,6 +60,7 @@ Rcpp::List RunHLDA(List Documents, int max_iter = 500, int max_time = 3600){
     Rcout << "Setting up HDP state" << std::endl;
     hdp->setup_doc_states(c_train->docs_);    
     
+    //burn-in step
     hdp->iterate_gibbs_state(false, false);
       
     while ((max_iter == -1 || iter < max_iter) && (max_time == -1 || total_time < max_time)) {

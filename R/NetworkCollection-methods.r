@@ -133,14 +133,30 @@
 
 setMethod('InferNetworks',signature= c(object="NetworkCollection"),
           function(object,thr =0.5,max_iter = 500L, max_time = 3600L, ...){
+            eta <- 0.01
+            gamma <- 1.0
+            alpha <- 1.0
             
+            args <- list(...)
+            eta <- ifelse(is.null(args[["eta"]]), eta,args[["eta"]])
+            alpha <- ifelse(is.null(args[["alpha"]]), eta,args[["alpha"]])
+            gamma <- ifelse(is.null(args[["gamma"]]), eta,args[["gamma"]])
+
             petNets <-networks(object)
             HDA_DATA<- .ConvertToHDA(petNets ,tfspace=TF(object))
             print("Estimating the number of topics");
-            HLDA_res<- RunHLDA(HDA_DATA, max_iter = max_iter, max_time = max_time);
+            HLDA_res<- RunHLDA(HDA_DATA, max_iter = max_iter, max_time = max_time,
+                               eta = eta, gamma=gamma, alpha=alpha);
             
             #Normalize the frequencies
+            ntopic <- ncol(HLDA_res$topicPerDoc)
             HLDA_res$topicPerDoc <-t(apply(HLDA_res$topicPerDoc ,1,function(x){x/sum(x)}))
+            ## in the case we have one topic apply will return a vector
+            ## then force it to be a matrix
+            if(ntopic == 1) {
+              HLDA_res$topicPerDoc <- matrix(HLDA_res$topicPerDoc,ncol=1)
+            }
+              
             colnames(HLDA_res$topicPerDoc)<- paste("Topic", 1:ncol(HLDA_res$topicPerDoc),sep="")
             rownames(HLDA_res$topicPerDoc)<-gsub("[\\.|PET#]","",names(petNets))                                                    
             Res<- HLDAResult(HLDA_res$topicPerDoc, HLDA_res$wordsPerTopic, HLDA_res$Betas)
