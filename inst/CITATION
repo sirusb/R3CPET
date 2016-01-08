@@ -5,4 +5,5 @@ citEntry(
    journal = "Genome Biology",   
    year = 2015,
    textVersion = "Djekidel MN, Liang ZY, Wang Q, Hu Z, Li G, Chen Y, Zhang MQ, 3CPET: Finding Co-factor Complexes from ChIA-PET data by using Hierarchical Dirichlet Process. Genome Biology 2015. In press"
+
 )
