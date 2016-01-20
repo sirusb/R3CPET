@@ -13,7 +13,7 @@ License: GPL (>=2)
 Depends: R (>= 3.2), Rcpp (>= 0.10.4), methods
 Imports: methods, parallel, clues, ggplot2, pheatmap, clValid, igraph,
         data.table, reshape2, Hmisc, RCurl,
-        BiocGenerics, S4Vectors, IRanges, GenomicRanges, ggbio
+        BiocGenerics, S4Vectors, IRanges, GenomeInfoDb, GenomicRanges, ggbio
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Suggests: BiocStyle, knitr, TxDb.Hsapiens.UCSC.hg19.knownGene,
