@@ -26,6 +26,11 @@ import(S4Vectors)
 import(IRanges)
 import(GenomicRanges)
 
+importFrom(parallel, mclapply)
+importFrom(parallel, makeCluster)
+importFrom(parallel, detectCores)
+importFrom(parallel, stopCluster)
+
 #import(biovizBase)
 #import(ChIPpeakAnno)
 
@@ -39,13 +44,6 @@ importFrom(clValid, sota)
 importFrom(data.table, SJ)
 importFrom(data.table, setkey)
 importFrom(data.table, data.table)
-
-importFrom(parallel, mclapply)
-importFrom(parallel, parLapply)
-importFrom(parallel, makeCluster)
-importFrom(parallel, detectCores)
-importFrom(parallel, stopCluster)
-
 
 importFrom(igraph, V)
 importFrom(igraph, E)
