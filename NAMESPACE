@@ -75,11 +75,6 @@ importFrom(igraph, layout.kamada.kawai)
 importFrom(igraph, get.all.shortest.paths)
 
 
-importFrom(ggbio, xlim)
-importFrom(ggbio, tracks)
-importFrom(ggbio, plotIdeogram)
-importFrom(ggbio, layout_circle)
-
 importFrom(ggplot2, aes)
 importFrom(ggplot2, theme)
 importFrom(ggplot2, ggsave)
@@ -100,6 +95,13 @@ importFrom(ggplot2, element_text)
 importFrom(ggplot2, element_blank)
 importFrom(ggplot2, scale_y_continuous)
 importFrom(ggplot2, scale_colour_gradient)
+
+
+
+importFrom(ggbio, xlim)
+importFrom(ggbio, tracks)
+importFrom(ggbio, plotIdeogram)
+importFrom(ggbio, layout_circle)
 
 
 
