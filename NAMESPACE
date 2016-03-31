@@ -21,11 +21,11 @@ export(ChiapetExperimentData, NetworkCollection,
 
 ### imports ####
 import(methods)
-import(BiocGenerics)
-import(S4Vectors)
-import(IRanges)
-import(GenomeInfoDb)
-import(GenomicRanges)
+#import(BiocGenerics)
+#import(S4Vectors)
+#import(IRanges)
+#import(GenomeInfoDb)
+#import(GenomicRanges)
 
 importFrom(parallel, mclapply)
 importFrom(parallel, makeCluster)
