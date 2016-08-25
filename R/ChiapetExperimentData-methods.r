@@ -352,9 +352,10 @@
   ## parallelize the computation so the users will not wait for a long time.
   ## works on all OS
   nbCores <- detectCores(logical=TRUE)
+  #nbCores <- 1
   message(paste(nbCores, "cores detected on your computer"))
   cl <- makeCluster(getOption("cl.cores", nbCores))
-  message("")
+  #message("")
   res <- parLapply(cl,pets, f,paths=all.paths, bgNetwork=PPI)
   stopCluster(cl)
   
@@ -397,6 +398,10 @@
   #lst<-c(source,dist);
   lst<-c();
   dist<-dist[ which(dist %in% V(PPI)$name) ]
+  
+  if(length(dist) == 0){
+    return(NULL)
+  }
   
   for(s in source){
     

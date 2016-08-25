@@ -17,20 +17,21 @@ exportClasses(cluesOrSota, ChiapetExperimentData,
 
 export(ChiapetExperimentData, NetworkCollection, 
 		HLDAResult, ChromMaintainers)
-#exportPattern("^[[:alpha:]]+")
 
 ### imports ####
 import(methods)
-#import(BiocGenerics)
-#import(S4Vectors)
-#import(IRanges)
-#import(GenomeInfoDb)
-#import(GenomicRanges)
 
-importFrom(parallel, mclapply)
-importFrom(parallel, makeCluster)
-importFrom(parallel, detectCores)
-importFrom(parallel, stopCluster)
+
+
+importFrom("grDevices", "colorRampPalette", 
+            "colors", "dev.off",
+            "gray", "pdf", "png")
+             
+importFrom("graphics", "par", "plot")
+importFrom("stats", "quantile")
+importFrom("utils", "data", "head", 
+            "read.csv", "read.delim",
+            "read.table", "tail", "write.table")
 
 #import(biovizBase)
 #import(ChIPpeakAnno)
@@ -107,7 +108,17 @@ importFrom(ggbio, layout_circle)
 
 
 importFrom(S4Vectors, Rle)
+importFrom(S4Vectors, mcols)
+importFrom(S4Vectors, values)
+importFrom(S4Vectors,queryHits)
 importFrom(S4Vectors,DataFrame)
+importFrom(S4Vectors,"values<-")
+importFrom(S4Vectors,subjectHits)
+importFrom(S4Vectors,elementLengths)
+
+
+
+
 importClassesFrom(IRanges, Views)
 importClassesFrom(IRanges, IRanges)
 importClassesFrom(IRanges, RleList)
@@ -125,13 +136,15 @@ importFrom(IRanges,RangedData)
 importFrom(IRanges,IntegerList)
 importFrom(IRanges,CharacterList)
 importFrom(IRanges, IRangesList)
+importFrom(IRanges,subsetByOverlaps)
 
 importMethodsFrom(IRanges, width)
-importMethodsFrom(IRanges,queryHits)
-importMethodsFrom(IRanges,"values<-")
-importMethodsFrom(IRanges,subjectHits)
-importMethodsFrom(IRanges,elementLengths)
 
+
+importFrom(GenomeInfoDb,keepSeqlevels)
+importFrom(GenomeInfoDb, seqlevels)
+importFrom(GenomeInfoDb, seqlengths)
+importFrom(GenomeInfoDb,"seqlengths<-")
 
 importClassesFrom(GenomicRanges,GRanges)
 importClassesFrom(GenomicRanges,GRangesList)
@@ -140,21 +153,13 @@ importClassesFrom(GenomicRanges,GenomicRangesList)
 importFrom(GenomicRanges, GRanges)
 importMethodsFrom(GenomicRanges, end)
 importMethodsFrom(GenomicRanges, start)
-importMethodsFrom(GenomicRanges, mcols)
-importMethodsFrom(GenomicRanges, values)
 importMethodsFrom(GenomicRanges, setdiff)
 importMethodsFrom(GenomicRanges, seqinfo)
 importMethodsFrom(GenomicRanges, seqnames)
 importMethodsFrom(GenomicRanges, promoters)
 importMethodsFrom(GenomicRanges, intersect)
-importMethodsFrom(GenomicRanges, seqlengths)
 importMethodsFrom(GenomicRanges, findOverlaps)
-importMethodsFrom(GenomicRanges, keepSeqlevels)
-importMethodsFrom(GenomicRanges, seqlevels)
-importMethodsFrom(GenomicRanges, "seqlengths<-")
 importMethodsFrom(GenomicRanges, elementMetadata)
-importMethodsFrom(GenomicRanges, subsetByOverlaps)
-
 
 
 
