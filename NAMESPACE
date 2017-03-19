@@ -114,11 +114,7 @@ importFrom(S4Vectors,queryHits)
 importFrom(S4Vectors,DataFrame)
 importFrom(S4Vectors,"values<-")
 importFrom(S4Vectors,subjectHits)
-<<<<<<< HEAD
-importFrom(S4Vectors,elementLengths)
-=======
 importFrom(S4Vectors,elementNROWS)
->>>>>>> master
 
 
 
