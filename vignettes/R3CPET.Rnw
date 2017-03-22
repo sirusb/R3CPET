@@ -258,8 +258,11 @@ At this step the \Rmethod{InferNetworks} can be used to run the HLDA algorithm a
 chromatin maintainer networks. by default, the algorithm do a maximum of 500 iteration or stops after 1 hour. 
 
 <<InferNetowrks_usage, warning=FALSE, tidy=TRUE, eval=FALSE>>=
-InferNetworks(object,thr =0.5,max_iter = 500L, max_time = 3600L, ...)
+InferNetworks(object,thr =0.5,max_iter = 500L, max_time = 3600L, eta=0.01,gamma=1,alpha=1)
 @
+
+To control the behaviour of the algorithm, users can modify the values of the HDP algorithm paramters \Rcode{eta}, \Rcode{gamma} and \Rcode{alpha}. Briefly, \Rcode{eta} and \Rcode{alpha} control the sparcity of the edge-to-CMN matrix. In other words, smaller values allow force an edge to belong to a small number of CMNs (ideally one) and larger values (>1) alow them to be uniformly assigned. \Rcode{gamma} controls the number of CMNs, smaller values leads to less prediced CMNs while larger values leads to more CMNs. Users can check figures S13-S16 of the mauscript.
+
 
 When the algorithm finishes we get a matrix that indicates the degree of partnership of each edge to the inferred networks 
 (each network is distribution over edges). Thus, to get the top elements in each network, we use the parameter \Rcode{thr}

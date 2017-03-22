@@ -505,6 +505,7 @@ setMethod("visualizeCircos", signature = c(object= "ChromMaintainers", data= "Ch
             if(is.null(chrLenghts)){
               data("hg19Ideogram", package = "biovizBase", envir= environment())            
               hg19Ideogram <- get("hg19Ideogram", envir = environment())
+              hg19Ideogram <- hg19Ideogram[ as.character(seqnames(hg19Ideogram)) %in% seqlevels(interactions) ]
               hg19Ideo <- keepSeqlevels(hg19Ideogram, seqlevels(interactions))
               seqlengths(interactions) <- seqlengths(hg19Ideo)
             }

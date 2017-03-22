@@ -31,7 +31,8 @@
  that capture 50\% of the partnership. }
  \item{max_iter}{maximum number of iterations (befault 500).}
  \item{max_time}{maximum runing time (3600 sec).}
- \item{\dots}{ not used for the moment, left for additional parameters.}
+  \item{\dots}{ You can pass additional paramters to control the behaviour of the HDP model. The possible paramters are \emph{eta}, \emph{alpha} and \emph{gamma}. \emph{eta} controls how edges are assigned to CMNs on the global level. smaller \emph{eta} values will lead to sparce edge-to-CMN assignment, which \emph{eta} >1 leads to more uniform assignments. \emph{gamma} on the other hand, controls the number of CMNs, smaller \emph{gamma} values will produce a small number of CMNs and \emph{gamma}>1 will favor the generation of more. \emph{alpha} controls the sparcity at the local PPI. smaller \emph{alpha} value force edges to be conrolled by a small number of CMNs, while lagrger values leads to more uniform distribution. By default \emph{eta = 0.01}, \emph{gamma =1} and \emph{alpha =1}. 
+  }    
 }
 \value{
  Returns a \code{\link{ChromMaintainers}} object that contains the list of inferred networks and the probability
