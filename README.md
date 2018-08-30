@@ -15,8 +15,9 @@ To infer these sets of chromatin maintainer networks (CMNs), first, we build, fo
 R3CPET can be downloaded from bioconductor as follow:
 ```S
 ## try http if https is not available
-source("https://bioconductor.org/biocLite.R")
-biocLite("R3CPET")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("R3CPET")
 ```
 
 To install the latest development version of R3CPET:
