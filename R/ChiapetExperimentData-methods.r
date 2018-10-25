@@ -407,7 +407,7 @@
     
     net<-unique(as.integer(unlist(paths[[s]][dist])));
     net<-net[!is.null(net)];
-    
+    net<-net[!is.na(net)];
     if(length(net)>0){
       subNet<-simplify(induced.subgraph(PPI,V(PPI)[net]));
       res<-apply(get.edges(graph=subNet,E(subNet)),1,function(x){paste(sort(V(subNet)[x]$name),collapse="_")})
