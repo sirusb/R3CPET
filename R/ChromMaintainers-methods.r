@@ -161,8 +161,8 @@
     NetworkRegions <- getRegionsInNetwork(hdaRes,data,net)
     if(length(NetworkRegions)>0){
       #networkInfo<-.GetClusterInfo(NetworkRegions);
-      tmp.rd <- RangedData(space =  gsub("chr","", as.character(seqnames(NetworkRegions))), 
-                           ranges = IRanges(start(NetworkRegions), end(NetworkRegions)))
+      tmp.rd <- GRanges( gsub("chr","", as.character(seqnames(NetworkRegions))), 
+                        IRanges(start(NetworkRegions), end(NetworkRegions)))
         
       ##ensemble <- useMart("ensembl")
       ## hsp <- useDataset(mart = ensemble, dataset = "hsapiens_gene_ensembl")
