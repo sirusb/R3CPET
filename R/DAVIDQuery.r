@@ -9,6 +9,7 @@
 			ifelse(tool=="geneReportFull", 
 			" (invisible return)", ""), 
 		"\n")
+
 	### formatting depends on which is done
 	if(tool=="geneReportFull") {
 		returnval <- try(formatGeneReportFull(result))
