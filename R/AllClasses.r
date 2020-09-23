@@ -30,9 +30,9 @@ setClass("HLDAResult",
          prototype= prototype(docPerTopic=NULL, wordsPerTopic = NULL, betas= numeric())
          )
 
-setOldClass("clues")
+#setOldClass("clues")
 setOldClass("sota")
-setClassUnion("cluesOrSota", c("clues", "sota","NULL"))
+setClassUnion("cluesOrSota", c("sota","NULL"))
 
 setClass("ChromMaintainers",         
         representation(

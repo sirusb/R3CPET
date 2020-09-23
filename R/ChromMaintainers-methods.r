@@ -420,13 +420,7 @@ setMethod("getClusters",signature= c(object= "ChromMaintainers"),
             if(is.null(object@clusRes))
               return(NA)
             
-            clusters <- c();
-            if("clues" %in% class(object@clusRes)){              
-              clusters <- object@clusRes$mem
-            }
-            else{              
-              clusters <- object@ClusRes$clust
-            }            
+            clusters <- object@ClusRes$clust
             return(clusters)
             
           })
