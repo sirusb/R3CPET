@@ -36,10 +36,10 @@ importFrom("utils", "data", "head",
 #import(biovizBase)
 #import(ChIPpeakAnno)
 
-importFrom(clues, clues)
-importFrom(clues, plotCurves) 
-importFrom(clues, plotClusters) 
-importFrom(clues, plotAvgCurves) 
+#importFrom(clues, clues)
+#importFrom(clues, plotCurves) 
+#importFrom(clues, plotClusters) 
+#importFrom(clues, plotAvgCurves) 
 
 importFrom(clValid, sota)
 

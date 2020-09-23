@@ -325,13 +325,12 @@ The \Rmethod{clusterInteractions} can be used to do so. Two types of clustering 
 The \Rmethod{clusterInteractions} is defined as follow:
 
 <<cluster_usage, tidy=TRUE,  eval=FALSE>>=
-clusterInteractions(object, method=c("clues","sota"), nbClus=20 )
+clusterInteractions(object, method="sota", nbClus=20 )
 @
 
-by default the \Rcode{clues} method is chosen , if you specify \Rcode{sota} the default number of clusters is 20.
 <<clusterInteractions, tidy=TRUE,cache=TRUE, prompt=TRUE>>= 
-## clustering using the "clues" method
-hlda <- clusterInteractions(hlda, method="clues")
+## clustering
+hlda <- clusterInteractions(hlda, method="sota",nbClus=6)
 @
 
 \subsection{Visualization}

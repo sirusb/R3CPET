@@ -326,7 +326,7 @@
 
 
 setMethod("clusterInteractions", signature = c(object="ChromMaintainers"),
-          function(object, method=c("clues","sota"), nbClus=20 ){
+          function(object, method="sota", nbClus=20 ){
            
 			cat("clusterInteractions : checking\n")
             if(is.null(object@maintainers@docPerTopic) || 0 %in% dim(object@maintainers@docPerTopic))
@@ -335,20 +335,15 @@ setMethod("clusterInteractions", signature = c(object="ChromMaintainers"),
 			cat("clusterInteractions : reading args\n")			
             method <- match.arg(method)            
                         
-            if(method == "clues"){
-			  cat("using clues\n")
-              requireNamespace("clues")
-			 }
-            else{
-              if(nbClus <= 0 || is.null(nbClus))
-                stop("nbClus should be a positive number")              
+          
+              if(nbClus <= 0 || is.null(nbClus)){
+                stop("nbClus should be a positive number")   
+              }
+                           
 			   cat("using clValid\n")
               requireNamespace("clValid")
-            }
             
-            clusRes <- switch(method,
-                              clues = clues(object@maintainers@docPerTopic) ,
-                              sota = sota(object@maintainers@docPerTopic,maxCycles=nbClus-1) )
+            clusRes <- sota(object@maintainers@docPerTopic,maxCycles=nbClus-1)
             object@clusRes <- clusRes;
             message(paste("DNA interactions have been clustered into",length(unique(getClusters(object))), "cluster"))
             return(object)
