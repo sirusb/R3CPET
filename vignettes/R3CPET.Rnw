@@ -44,7 +44,7 @@ BiocStyle::latex()
 \bioctitle{\Biocpkg{R3CPET} user manual}
 \author{
 Mohamed Nadhir Djekidel, Yang Chen et al\\
-\email{nde12@mails.tsinghua.edu.cn}
+\email{djek.nad@gmail.com}
 }
 
 \begin{document}
@@ -356,7 +356,7 @@ getRegionsIncluster(hlda,x,cluster=3)
 After clustering the enrichment map can be visualized using the \Rcode{heatmap} option in the \Rmethod{plot3CPETRes} method.
 Here each column represent a chromatin-chromatin interaction and each row represents a chromatin maintainer network. 
 The  colors indicate the probability that a chromatin-chromatin interaction is maintained by a chromatin maintainer network.
-<<heatmap, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center' , fig.height=3>>= 
+<<heatmap, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center' , fig.height=3, fig.width=6>>=
 plot3CPETRes( hlda, type = 'heatmap')
 @
 
@@ -435,68 +435,11 @@ visualizeCircos(hlda,x, cluster = 4)
 \end{itemize}
 
 
-\subsubsection{Networks GO enrichment}
-
-
-<<GOEnrich.networks_usage, warning=FALSE, tidy=TRUE, eval=FALSE, prompt=TRUE>>=
-
-GOEnrich.networks(object, fdr= 0.05, GOlimit = 5,path = "")
-@
-
-The \Rmethod{GOEnrich.networks} method can be used for that. it takes as parameters a \Robject{ChromMaintainers} object
-and a optionally the cu-off \Rcode{FDR} and the path to save the generated figure. The maximum number of returned 
-GO terms per cluster can be specified by the \Rcode{GOlimit} parameter.
-
-
-<<GOEnrich.networks, warning=FALSE, tidy=TRUE, prompt=TRUE, fig.align='center', cache=TRUE, fig.show='hide', eval=FALSE>>=
-
-GOEnrich.networks(hlda, path= '.')
-@
-
-\begin{figure}[h]
-
-\centering
-\includegraphics[scale=0.32]{NetworksEnrich.pdf}
-\end{figure}
-
-
-Each column in this plot represent a network and each row represents the GO term to which each network is enriched.
-The size of the dot is proportional to the number of percentage of the proteins enriched for that term.
-
-\subsubsection{GO enrichment of the genes in each cluster}
-Another question that we want to ask is what are the genes involved in each cluster ? and do they share some specific function.
-Similarly a GO annotation method is available. However, before doing the GO enrichment the list of list in each each 
-cluster should be extracted, this can be done using the \Rmethod{outputGenesPerClusterToDir} method.
-
-<< outputGenesPerClusterToDir_usage,tidy=TRUE,  eval=FALSE >>=
-outputGenesPerClusterToDir(hdaRes,data,path="ClustersGenes", ...)
-@
-
-This function generated a folder (by default named \Rcode{ClustersGenes}) that contains \Rcode{.txt} file for each cluster.
-
-<<outputGenesPerClusterToDir, warning=FALSE, tidy=TRUE, prompt=TRUE, message=FALSE, eval=FALSE>>=
-outputGenesPerClusterToDir(hlda, x)
-@
-
-Then we can use the \Rmethod{GOEnrich.folder} to enrich the list of genes in the created folder.
-<< GOEnrich_folder, warning=FALSE, tidy=TRUE, prompt=TRUE, fig.align='center', fig.show='hide', message=FALSE, eval=FALSE>>=
-GOEnrich.folder(folder = "ClustersGenes/")
-@
-
-A figure will be generated for the significantly enriched gene lists (example figure bellow).
-
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.30]{cluster_GO.png}
-\caption{Example of the GO enrichment for a genes of cluster 1}
-\end{figure}
-
-
 
 \subsection{Using the web interface}
 
 After getting all the results (HLDA, clustering, ... etc), the user can display the results 
-using a web browser developped using the \Rpackage{shiny} package. This can be done throght the method \Rmethod{createServer}.
+using a web browser developed using the \Rpackage{shiny} package. This can be done thought the method \Rmethod{createServer}.
 
 << createShinyServer,tidy=TRUE,  eval=FALSE >>=
 createServer(x,nets,hlda)

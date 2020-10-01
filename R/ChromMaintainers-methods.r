@@ -318,6 +318,53 @@
   return(graphs)
 }
 
+## Copied from th clValid package with some minor modifications.
+.plot.sota <- function(x, cl=0, ...){
+  
+  op <- par(no.readonly=TRUE)
+  on.exit(par(op))
+  if(cl!=0)
+    par(mfrow=c(1,1)) else
+    {
+      pdim <- c(0,0)
+      for(i in 1:100){
+        j <- i
+        if(length(x$totals) > i*j)
+          j <- j+1
+        else{
+          pdim <- c(i,j)
+          break}
+        if(length(x$totals) > i*j)
+          i <- i+1
+        else{
+          pdim <- c(i,j)
+          break}
+      }
+      par(mfrow=pdim)
+    }
+  
+  ylim = c(min(x$data), max(x$data))
+  pr <- 4:ncol(x$tree)
+  if(cl==0)
+    cl.to.print <- 1:length(table(x$clust)) else  ## changed
+      cl.to.print <- cl
+  cl.id <- sort(unique(x$clust))  ## changed
+  
+  for(i in cl.to.print){
+    plot(1:ncol(x$data), x$tree[i, pr], col="red", type="l",
+         ylim=ylim, xlab=paste("Cluster ",i), ylab="Expr. Level", ...)
+    legend("topleft", legend=paste(x$totals[i], " Elements"), cex=.7,
+           text.col="navy", bty="n")
+    cl <- x$data[x$clust==cl.id[i],]  ## changed
+    if(is.vector(cl))
+      cl <- matrix(cl, nrow=1)
+    for(j in 1:x$totals[i])
+      lines(1:ncol(x$data), cl[j,], col="grey")
+    lines(1:ncol(x$data), x$tree[i, pr], col="red", ...)
+    
+  }
+}
+
 ###################################################################################
 ##
 ##        ChromatinMaintainers-methods
@@ -327,7 +374,6 @@
 
 setMethod("clusterInteractions", signature = c(object="ChromMaintainers"),
           function(object, method="sota", nbClus=20 ){
-           
 			cat("clusterInteractions : checking\n")
             if(is.null(object@maintainers@docPerTopic) || 0 %in% dim(object@maintainers@docPerTopic))
               stop("The docPerTopic matrix should not be empty")
@@ -369,25 +415,17 @@ setMethod("plot3CPETRes", signature = c(object="ChromMaintainers"),
                 stop("No clustering results found, please check method cluster")
               
               par(mar = rep(2, 4))
-              
-              if(type == "clusters"){                
-                if("sota" %in% class(object@clusRes))
-                  stop("clusters plot are only supported for clues objects")
-                else
-                 p<- plotClusters(object@clusRes$y,object@clusRes$mem)
-              }
-              else{
                 if(type == "curve"){
                   if("sota" %in% class(object@clusRes))
-                    p<- plot(object@clusRes)
+                    p<- .plot.sota(object@clusRes)
                   else
                     p <- plotCurves(object@clusRes$y,object@clusRes$mem)
                 }
                 else
                   if(type == "avgCurve"){
                     if("sota" %in% class(object@clusRes)){
-                       message("curves and avgCurves are plotted for clues objects")
-                       p <- plot(object@clusRes)
+                       message("curves and avgCurves are only plotted for clues objects. function kept for legacy")
+                       p <- .plot.sota(object@clusRes)
                     }
                     else
                       p <- plotAvgCurves(object@clusRes$y,object@clusRes$mem)
@@ -409,7 +447,6 @@ setMethod("plot3CPETRes", signature = c(object="ChromMaintainers"),
                   }
                     
                 }
-              }              
             }
                                 
             invisible(p)
@@ -420,7 +457,13 @@ setMethod("getClusters",signature= c(object= "ChromMaintainers"),
             if(is.null(object@clusRes))
               return(NA)
             
-            clusters <- object@ClusRes$clust
+            clusters <- c();
+            if("clues" %in% class(object@clusRes)){              
+              clusters <- object@clusRes$mem
+            }
+            else{              
+              clusters <- object@clusRes$clust
+            }            
             return(clusters)
             
           })
@@ -428,11 +471,11 @@ setMethod("getClusters",signature= c(object= "ChromMaintainers"),
 setMethod("getRegionsIncluster", signature=c(hdaRes="ChromMaintainers", data="ChiapetExperimentData",
                                              cluster="numeric"),
           function(hdaRes,data, cluster=1, ...){
-                      
+              
             if(is.null(hdaRes@clusRes))
               stop("You need to do the clustering first, check the cluster method")
             
-            clusters <- hdaRes@clusRes$mem
+            clusters <- hdaRes@clusRes$clust
             clusElements<-which(clusters == cluster);          
             if(length(clusElements) <= 0){
               warning("The provided cluster does not exist")              
