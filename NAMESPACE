@@ -33,13 +33,6 @@ importFrom("utils", "data", "head",
             "read.csv", "read.delim",
             "read.table", "tail", "write.table")
 
-#import(biovizBase)
-#import(ChIPpeakAnno)
-
-#importFrom(clues, clues)
-#importFrom(clues, plotCurves) 
-#importFrom(clues, plotClusters) 
-#importFrom(clues, plotAvgCurves) 
 
 importFrom(clValid, sota)
 

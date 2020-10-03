@@ -6,7 +6,7 @@
 \title{Wrapper for \code{clues} and \code{sota} S3 classes}
 \description{
  This is an S4 virtual union class that defines a new object that can be a \code{\link{sota}}
- or a \code{\link{clues}} class.
+ or a \code{\link{clues}} class. Now that the \code{clues} method is deprecated, on the \code{\link{sota}} method is supported.
 }
 \section{Definition}{
 \code{setClassUnion("cluesOrSota", c("sota","NULL"))}

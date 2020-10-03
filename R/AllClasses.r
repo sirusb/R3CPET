@@ -30,7 +30,6 @@ setClass("HLDAResult",
          prototype= prototype(docPerTopic=NULL, wordsPerTopic = NULL, betas= numeric())
          )
 
-#setOldClass("clues")
 setOldClass("sota")
 setClassUnion("cluesOrSota", c("sota","NULL"))
 

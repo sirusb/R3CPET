@@ -1,6 +1,6 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{3CPET: Finding Co-factor Complexes maintaining Chia-PET interactions}
-%\VignetteDepends{data.table, parallel, igraph, GenomicRanges, clues}
+%\VignetteDepends{data.table, parallel, igraph, GenomicRanges}
 %\VignettePackage{R3CPET}
 %\VignetteKeywords{Dirichlet, HLDA, transcription, chromatin}
 
@@ -316,11 +316,7 @@ Till the moment we can say ok, we got the list of out networks and we can do fur
 however,it would be nice if we can know which DNA interactions are enriched for same networks. Thus, the package provide a clustering
 feature to further analysis.
 
-The \Rmethod{clusterInteractions} can be used to do so. Two types of clustering can be done: 
-\begin{itemize}
-\item Supervised : in which the user provides the number of clusters he wants, this part is done using the \Rmethod{sota} method of the \Rpackage{clValid} package.
-\item non-supervised :  in which the number of clusters is determined automatically, performed using the \Rmethod{clues} method of the \Rcode{clues} package.
-\end{itemize}
+The \Rmethod{clusterInteractions} can be used to do so. The \Rmethod{sota} method of the \Rpackage{clValid} package is used. 
 
 The \Rmethod{clusterInteractions} is defined as follow:
 
@@ -380,14 +376,6 @@ if \Rcode{type = "avgCurve"} then the average curves are displayed.
 plot3CPETRes(hlda, type = 'avgCurve')
 @
 
-\subsubsection{clusters pair-wise scatter plot}
-In some cases we want to see which two clusters can give a better separation of the data, in this case the \Rcode{type = "clusters"} option can be used. This option is only available if the clustering have been done using the \Rmethod{clues} method.
-
-
-<<plot_clusters, tidy=TRUE,cache=TRUE, prompt=TRUE,fig.align='center',fig.width=5, fig.height=5>>= 
-## plotting pair-wise clusters scatter plots
-plot3CPETRes(hlda, type = 'clusters')
-@
 
 \subsubsection{plot networks}
 
