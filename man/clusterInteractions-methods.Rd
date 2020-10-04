@@ -8,7 +8,7 @@
  the inferred chromatin maintainer networks. 
 }
 \usage{
-\S4method{clusterInteractions}{ChromMaintainers}(object, method=c("sota"), nbClus=20 )
+\S4method{clusterInteractions}{ChromMaintainers}(object, method="sota", nbClus=20 )
 }
 \arguments{
  \item{object}{ (\emph{\strong{Required})} a non-empty \code{\link{ChromMaintainers}} object}
