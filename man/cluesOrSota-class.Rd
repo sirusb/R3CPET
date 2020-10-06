@@ -20,7 +20,7 @@ Herrero, J., Valencia, A, and Dopazo, J. (2005).\emph{A hierarchical unsupervise
 
 }
 \author{
-Mohamed Nadhir Djekidel (\email{nde12@mails.tsinghua.edu.cn})
+Mohamed Nadhir Djekidel (\email{djek.nad@gmail.com})
 }
 
 \seealso{
